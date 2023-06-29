@@ -57,5 +57,41 @@ int main(){
 		std::cout << ' ' << *itermore;
 		++itermore;
 	}std::cout << '\n';
+	std::cout << "Copy constructing bukis from move set...\n";
+	ra::container::sv_set<int> bukis(move_set);
+	auto iterrata = bukis.begin();
+	std::cout << "Bukis contents:";
+	while( iterrata != bukis.end() ){
+		std::cout << ' ' << *iterrata;
+		++iterrata;
+	}std::cout << '\n';
+	itermore = move_set.begin();
+	std::cout << "Move set contains:";
+	while( itermore != move_set.end() ) {
+		std::cout << ' ' << *itermore;
+		++itermore;
+	}std::cout << '\n';
+	std::cout << "Constructing test set...\n";
+	ra::container::sv_set<int> test_set(oaur, randorn, 10);
+	auto hata = test_set.begin();
+	std::cout << "Test set contains:";
+	while( hata != test_set.end() ){
+		std::cout << ' ' << *hata;
+		++hata;
+	}std::cout << '\n';
+	std::cout << "Copy assigning bukis to test set...\n";
+	bukis = test_set;
+	iterrata = bukis.begin();
+	std::cout << "Bukis contents:";
+	while( iterrata != bukis.end() ){
+		std::cout << ' ' << *iterrata;
+		++iterrata;
+	}std::cout << '\n';
+	hata = test_set.begin();
+	std::cout << "Test set contains:";
+	while( hata != test_set.end() ){
+		std::cout << ' ' << *hata;
+		++hata;
+	}std::cout << '\n';
 	return std::cout ? 0 : 1;
 }

@@ -89,8 +89,36 @@ public:
 		return *this;
 	}
 
+	// Copy constructor
+	sv_set(const sv_set& other):
+		begin_ {static_cast<iterator>(::operator new(sizeof(value_type) * (other.size() + 1)))},
+		       end_ {&*std::uninitialized_copy<const_iterator>(other.begin(), other.end(), begin_)},
+		       size_ {other.size()}, capacity_ {other.capacity()},
+		       comp_ {other.key_comp()} {}
+
+	// Copy assignment operator
+	sv_set& operator=(const sv_set& other){
+		// Destroy contents of this set
+		std::destroy<iterator>(begin_, end_);
+
+		// De-allocate this set
+		::operator delete(begin_);
+
+		// Copy other set into this set
+		begin_ = static_cast<iterator>(::operator new(sizeof(value_type) * (other.size() + 1)));
+		end_ = std::uninitialized_copy<const_iterator>(other.begin(), other.end(), begin_);
+		size_ = other.size_;
+		capacity_ = other.capacity_;
+		comp_ = other.comp_;
+
+		return *this;
+	}
+
+
+
 	// Member functions that serve only to return data members
 	// of the set.
+	key_compare key_comp() const { return comp_; }
 	const_iterator begin() const noexcept { return begin_; };
 	iterator begin() noexcept { return begin_; };
 	const_iterator end() const noexcept { return end_; };
