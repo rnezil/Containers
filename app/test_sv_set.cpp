@@ -22,5 +22,40 @@ int main(){
 		std::cout << ' ' << *iterint;
 		++iterint;
 	}std::cout << '\n';
+	ra::container::sv_set<int> move_set(std::move(value_set));
+	auto itermove = move_set.begin();
+	std::cout << "Move set contains:";
+	while(itermove != move_set.end()){
+		std::cout << ' ' << *itermove;
+		++itermove;
+	}std::cout << '\n';
+	iterint = value_set.begin();
+	std::cout << "Value set contents:";
+	while( iterint != value_set.end() ){
+		std::cout << ' ' << *iterint;
+		++iterint;
+	}std::cout << '\n';
+	int morevalues[] = {1, 3, 6, 9, 12, 15, 16, 18, 21, 36, 46, 57, 68, 79, 80};
+	ra::container::sv_set<int> set_2(oaur, morevalues, 15);
+	auto itermore = set_2.begin();
+	std::cout << "Set 2 contains:";
+	while( itermore != set_2.end() ) {
+		std::cout << ' ' << *itermore;
+		++itermore;
+	}std::cout << '\n';
+	std::cout << "Moving set 2 into move set...\n";
+	move_set = std::move(set_2);
+	itermove = move_set.begin();
+	std::cout << "Move set contains:";
+	while(itermove != move_set.end()){
+		std::cout << ' ' << *itermove;
+		++itermove;
+	}std::cout << '\n';
+	itermore = set_2.begin();
+	std::cout << "Set 2 contains:";
+	while( itermore != set_2.end() ) {
+		std::cout << ' ' << *itermore;
+		++itermore;
+	}std::cout << '\n';
 	return std::cout ? 0 : 1;
 }

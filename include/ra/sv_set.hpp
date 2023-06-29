@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <memory>
 #include <iostream>
+#include <utility>
 
 namespace ra::container {
 
@@ -49,9 +50,44 @@ public:
 	template <class InputIterator>
 	sv_set(ordered_and_unique_range, InputIterator first,
 			std::size_t n, const Compare& comp = Compare()):
-		begin_ {static_cast<iterator>(::operator new[](sizeof(value_type) * (n+1)))},
+		begin_ {static_cast<iterator>(::operator new(sizeof(value_type) * (n+1)))},
 		end_ {&*std::uninitialized_copy_n<InputIterator, size_type>(first, n, begin_)},
 		size_ {n}, capacity_ {n}, comp_ {comp} {}
+
+	// Move construct a set
+	sv_set(sv_set&& other) noexcept(std::is_nothrow_move_constructible_v<key_compare>):
+		begin_ {other.begin_}, end_ {other.end_}, size_ {other.size_},
+		       capacity_ {other.capacity_}, comp_ {std::move(other.comp_)} {
+			       other.begin_ = nullptr;
+			       other.end_ = nullptr;
+			       other.size_ = 0;
+			       other.capacity_ = 0;
+		       }
+
+	// Move assign a set
+	sv_set& operator=(sv_set&& other) noexcept(
+			std::is_nothrow_move_assignable_v<key_compare>){
+		// Destroy contents of this set
+		std::destroy<iterator>(begin_, end_);
+
+		// De-allocate this set
+		::operator delete(begin_);
+
+		// Move other set into this set
+		begin_ = other.begin_;
+		end_ = other.end_;
+		size_ = other.size_;
+		capacity_ = other.capacity_;
+		comp_ = std::move(other.comp_);
+
+		// Leave other set empty
+		other.begin_ = nullptr;
+		other.end_ = nullptr;
+		other.size_ = 0;
+		other.capacity_ = 0;
+
+		return *this;
+	}
 
 	// Member functions that serve only to return data members
 	// of the set.
