@@ -68,7 +68,7 @@ public:
 	sv_set& operator=(sv_set&& other) noexcept(
 			std::is_nothrow_move_assignable_v<key_compare>){
 		// Destroy contents of this set
-		std::destroy<iterator>(begin_, end_);
+		std::destroy<iterator>(begin(), end());
 
 		// De-allocate this set
 		::operator delete(begin_);
@@ -99,14 +99,14 @@ public:
 	// Copy assignment operator
 	sv_set& operator=(const sv_set& other){
 		// Destroy contents of this set
-		std::destroy<iterator>(begin_, end_);
+		std::destroy<iterator>(begin(), end());
 
 		// De-allocate this set
 		::operator delete(begin_);
 
 		// Copy other set into this set
 		begin_ = static_cast<iterator>(::operator new(sizeof(value_type) * (other.size() + 1)));
-		end_ = std::uninitialized_copy<const_iterator>(other.begin(), other.end(), begin_);
+		end_ = std::uninitialized_copy<const_iterator>(other.begin(), other.end(), begin());
 		size_ = other.size_;
 		capacity_ = other.capacity_;
 		comp_ = other.comp_;
@@ -114,7 +114,110 @@ public:
 		return *this;
 	}
 
+	~sv_set(){
+		// Destroy all elements in set
+		std::destroy<iterator>(begin(), end());
 
+		// De-allocate set
+		::operator delete(begin_);
+
+		// Nullify pointers
+		begin_ = nullptr;
+		end_ = nullptr;
+	}
+
+	void reserve(size_type n){
+		if( capacity() < n ){
+			// Allocate space for array growth
+			iterator xtra_space = static_cast<iterator>(
+					::operator new(sizeof(value_type) * (n + 1)));
+
+			// Move data from old array to new array
+			end_ = &*std::uninitialized_move<iterator>(begin(), end(), xtra_space);
+
+			// De-allocate old array
+			::operator delete(begin_);
+
+			// Point to start of new array
+			begin_ = xtra_space;
+
+			// Adjust capacity rating
+			capacity_ = n;
+		}
+	}
+
+	void shrink_to_fit(){
+		if( size() != capacity() ){
+			// Allocate space for new smalled-down array
+			iterator shrunken_space = static_cast<iterator>(
+					::operator new(sizeof(value_type) * (size() + 1)));
+
+			// Move data from old array to new array
+			end_ = &*std::uninitialized_move<iterator>(begin(), end(), shrunken_space);
+
+			// De-allocate old array
+			::operator delete(begin_);
+
+			// Point to start of shrunken array
+			begin_ = shrunken_space;
+
+			// Adjust capacity rating
+			capacity_ = size();
+		}
+	}
+
+	std::pair<iterator, bool> insert(const key_type& x);
+
+	iterator find(const key_type& k){
+		iterator finder = begin() - 1;
+		const_iterator upper = end() - 1;
+		const_iterator lower = begin();
+
+		if( size() & 0x1 ){
+			// Size is odd
+			finder += (size() + 1) / 2;
+		}else{
+			// Size is even
+			finder += size() / 2;
+		}
+
+		// Iterate until k is found in set
+		while( *finder != k ){
+			if( finder == begin() || finder == end() - 1 )
+				return end();
+
+			if( comp_(*finder, k) ){
+				// Finder is less than k, so
+				// update lower bound of search
+				lower = finder;
+
+				// Increment finder
+				if( (upper - finder) & 0x1 ){
+					// Odd
+					finder += (upper - finder + 1) / 2;
+				}else{
+					// Even
+					finder += (upper - finder) / 2;
+				}
+			}else{
+				// Finder is greater than k, so
+				// update upper bound of search
+				upper = finder;
+
+				// Increment finder;
+				if( (finder - lower) & 0x1 ){
+					// Odd
+					finder -= (finder - lower + 1) / 2;
+				}else{
+					// Even
+					finder -= (finder - lower) / 2;
+				}
+			}
+		}
+
+		return finder;
+	}
+			
 
 	// Member functions that serve only to return data members
 	// of the set.

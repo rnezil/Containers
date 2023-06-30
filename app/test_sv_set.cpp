@@ -1,9 +1,60 @@
+#define CATCH_CONFIG_MAIN
+
 #include "ra/sv_set.hpp"
 #include <iostream>
 #include <functional>
 #include <cstddef>
+#include <catch2/catch.hpp>
+#include <memory>
 
-int main(){
+TEST_CASE("Check find member", "[functions]") {
+	ra::container::sv_set<int>::ordered_and_unique_range oaur;
+	int values[1000];
+	for( int i {0}; i < 1000; ++i )
+		values[i] = i;
+	ra::container::sv_set<int> buggin(oaur, values, 1000);
+	for( int i {0}; i < 1000; ++i )
+		CHECK( *buggin.find(values[i]) == values[i] );
+
+	ra::container::sv_set<int>::ordered_and_unique_range oaf;
+	int floaties[2500];
+	int r;
+	for( int i {0}; i < 2500; ++i ){
+		r = (int)i;
+		floaties[i] = (r + 5)/45;
+		ra::container::sv_set<int> covid19(oaf, floaties, i+1);
+		CHECK( *covid19.find(floaties[i]) == floaties[i] );
+		CHECK( *covid19.find(floaties[i/2]) == floaties[i/2] );
+		CHECK( *covid19.find(floaties[i/3]) == floaties[i/3] );
+		CHECK( *covid19.find(floaties[i/4]) == floaties[i/4] );
+		CHECK( *covid19.find(floaties[i/5]) == floaties[i/5] );
+		CHECK( *covid19.find(floaties[i/6]) == floaties[i/6] );
+		CHECK( *covid19.find(floaties[i/7]) == floaties[i/7] );
+		CHECK( *covid19.find(floaties[i/8]) == floaties[i/8] );
+		if( i > 99 && i < 1999 ){
+			CHECK( *covid19.find(floaties[i/2 + i/3]) == floaties[i/2 + i/3] );
+			CHECK( *covid19.find(floaties[i/2 + i/5]) == floaties[i/2 + i/5] );
+			CHECK( *covid19.find(floaties[i/2 + i/7]) == floaties[i/2 + i/7] );
+			CHECK( *covid19.find(floaties[i/2 + i/9]) == floaties[i/2 + i/9] );
+		}
+		CHECK( *covid19.find(floaties[0]) == floaties[0] );
+	}
+}
+
+/*
+TEMPLATE_TEST_CASE("Check += and -=  operator with positive resulting value", "[operators]", short, int, long, long long, unsigned short, unsigned, unsigned long, unsigned long long, int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t, intmax_t, uintmax_t) {
+	ra::math::rational frac1 { 1 , 2 };
+	ra::math::rational frac2 { 1 , 2 };
+	ra::math::rational frac3 { 3 , 8 };
+	ra::math::rational frac4 { 7 , 8 };
+	ra::math::rational frac5 { 1 , 8 };
+	frac1 += frac3;
+	frac2 -= frac3;
+	CHECK( frac1 == frac4 );
+	CHECK( frac2 == frac5 );
+}
+*/
+/*int main(){
 	ra::container::sv_set<int> default_set;
 	std::less<int> compare_obj;
 	ra::container::sv_set<int> compare_set(compare_obj);
@@ -93,5 +144,12 @@ int main(){
 		std::cout << ' ' << *hata;
 		++hata;
 	}std::cout << '\n';
+	test_set.reserve(40);
+	hata = test_set.begin();
+	std::cout << "Test set contains:";
+	while( hata != test_set.end() ){
+		std::cout << ' ' << *hata;
+		++hata;
+	}std::cout << '\n';
 	return std::cout ? 0 : 1;
-}
+}*/
