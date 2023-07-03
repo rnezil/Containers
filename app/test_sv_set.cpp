@@ -41,6 +41,42 @@ TEST_CASE("Check find member", "[functions]") {
 	}
 }
 
+TEST_CASE("Check insert member", "[functions]"){
+	int vals[10] = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18};
+	ra::container::sv_set<int>::ordered_and_unique_range oaur;
+	ra::container::sv_set<int> stickitin(oaur, vals, 10);
+	CHECK( *stickitin.insert(-1).first == -1 );
+	CHECK( *stickitin.insert(1).first == 1 );
+	CHECK( *stickitin.insert(3).first == 3 );
+	CHECK( *stickitin.insert(5).first == 5 );
+	CHECK( *stickitin.insert(7).first == 7 );
+	CHECK( *stickitin.insert(9).first == 9 );
+	CHECK( *stickitin.insert(11).first == 11 );
+	CHECK( *stickitin.insert(13).first == 13 );
+	CHECK( *stickitin.insert(15).first == 15 );
+	CHECK( *stickitin.insert(17).first == 17 );
+	CHECK( *stickitin.insert(19).first == 19 );
+	CHECK( *stickitin.insert(-1).first == -1 );
+	CHECK( *stickitin.insert(1).first == 1 );
+	CHECK( *stickitin.insert(3).first == 3 );
+	CHECK( *stickitin.insert(5).first == 5 );
+	CHECK( *stickitin.insert(7).first == 7 );
+	CHECK( *stickitin.insert(9).first == 9 );
+	CHECK( *stickitin.insert(11).first == 11 );
+	CHECK( *stickitin.insert(13).first == 13 );
+	CHECK( *stickitin.insert(15).first == 15 );
+	CHECK( *stickitin.insert(17).first == 17 );
+	CHECK( *stickitin.insert(19).first == 19 );
+	ra::container::sv_set<float> foo;
+	for( int i = -1000; i < 1000;++i ){
+		CHECK( *foo.insert((float)((float)i/2)).first == (float)((float)i/2) );
+		CHECK( *foo.find((float)((float)i/2)) == (float)((float)i/2) );
+	}
+	for( int i = -1000; i < 1000; ++i ){
+		CHECK( *foo.find((float)((float)i/2)) == (float)((float)i/2) );
+	}
+}
+
 /*
 TEMPLATE_TEST_CASE("Check += and -=  operator with positive resulting value", "[operators]", short, int, long, long long, unsigned short, unsigned, unsigned long, unsigned long long, int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t, intmax_t, uintmax_t) {
 	ra::math::rational frac1 { 1 , 2 };
