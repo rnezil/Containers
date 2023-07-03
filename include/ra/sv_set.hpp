@@ -259,6 +259,33 @@ public:
 		return std::make_pair<iterator, bool>(std::move(spot), true);
 	}
 
+	iterator erase(const_iterator pos){
+		// If iterator does not reference an
+		// element of the set, return end()
+		if( !(pos >= begin() && pos < end()) )
+			return end();
+
+		// Get a mutable iterator referencing the
+		// same element in the set
+		iterator deletionist = begin();
+		while( deletionist != pos )
+			++deletionist;
+
+		// Move elements down into the place where
+		// the erased element used to be
+		std::move_backward(deletionist + 1, end(), end() - 1);
+
+		// Reflect changes in data members
+		--end_;
+		--size_;
+
+		// Delete old data sitting in end()
+		std::destroy_at(std::addressof(*end()));
+
+		return deletionist;
+	}
+
+
 	iterator find(const key_type& k){
 		if( begin() == end() )
 			return end();

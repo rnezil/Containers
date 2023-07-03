@@ -68,13 +68,41 @@ TEST_CASE("Check insert member", "[functions]"){
 	CHECK( *stickitin.insert(17).first == 17 );
 	CHECK( *stickitin.insert(19).first == 19 );
 	ra::container::sv_set<float> foo;
-	for( int i = -1000; i < 1000;++i ){
+	for( int i = -1000; i < 1000; ++i ){
 		CHECK( *foo.insert((float)((float)i/2)).first == (float)((float)i/2) );
 		CHECK( *foo.find((float)((float)i/2)) == (float)((float)i/2) );
 	}
 	for( int i = -1000; i < 1000; ++i ){
 		CHECK( *foo.find((float)((float)i/2)) == (float)((float)i/2) );
 	}
+	ra::container::sv_set<float> bar = foo;
+	for( int i = -1000; i < 999; ++i ){
+		CHECK( *foo.erase(foo.find((float)i/2)) == (float)(i+1)/2 );
+	}
+	CHECK( foo.size() == 1 );
+	CHECK( foo.capacity() == 2000 );
+	CHECK( *foo.begin() == 499.5 );
+	CHECK( *(foo.end() - 1) == 499.5 );
+	auto baz = foo.erase(foo.find(499.5));
+	CHECK( baz == foo.end() );
+
+/*	auto iter = foo.begin() + 1000;
+	int rich = 0;
+	while( iter != foo.end() ){
+		std::cout << *iter << '\t';
+		++rich;
+		if( rich == 10 ){
+			std::cout << '\n';
+			rich = 0;
+		}
+		++iter;
+	}std::cout << '\n';*/
+	/*CHECK( foo.erase(foo.find((float)999/2)) == foo.end() );
+	CHECK( foo.begin() == foo.end() );
+	for( int i = 999; i > -1001; --i ){
+		CHECK( bar.erase(foo.find((float)i/2)) == foo.end() );
+	}
+	CHECK( bar.begin() == bar.end() );*/
 }
 
 /*
