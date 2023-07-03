@@ -161,13 +161,13 @@ public:
 		if( size() != capacity() ){
 			// Store this set in temporary variable
 			auto tmp = std::move(*this);
-
+			
 			// De-allocate this set
 			::operator delete(begin_);
 	
 			// Allocate space for new smalled-down set
 			begin_ = static_cast<iterator>(
-					::operator new(sizeof(value_type) * (size() + 1)));
+					::operator new(sizeof(value_type) * (tmp.size() + 1)));
 	
 			// Move data from temporary set to new set
 			end_ = &*std::uninitialized_move<iterator>(
@@ -284,7 +284,23 @@ public:
 
 		return deletionist;
 	}
+	
+	void swap(sv_set& x) noexcept(std::is_nothrow_swappable_v<key_compare>){
+		std::swap(begin_, x.begin_);
+		std::swap(end_, x.end_);
+		std::swap(size_, x.size_);
+		std::swap(capacity_, x.capacity_);
+		std::swap(comp_, x.comp_);
+	}
 
+	void clear() noexcept {
+		std::destroy(begin(), end());
+		::operator delete(begin_);
+		begin_ = static_cast<iterator>(::operator new(sizeof(value_type)));
+		end_ = begin_;
+		size_ = 0;
+		capacity_ = 0;
+	}
 
 	iterator find(const key_type& k){
 		if( begin() == end() )

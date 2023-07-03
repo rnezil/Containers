@@ -7,7 +7,7 @@
 #include <catch2/catch.hpp>
 #include <memory>
 
-TEST_CASE("Check find member", "[functions]") {
+TEST_CASE("Check find member and constructors", "[functions]") {
 	ra::container::sv_set<int>::ordered_and_unique_range oaur;
 	int values[1000];
 	for( int i {0}; i < 1000; ++i )
@@ -41,7 +41,7 @@ TEST_CASE("Check find member", "[functions]") {
 	}
 }
 
-TEST_CASE("Check insert member", "[functions]"){
+TEST_CASE("Check find, insert, and erase  members; check constructors; check size, capacity, reserve, and shrink_to_fit; check begin and end; check assignment operators; check swap and clear", "[functions]"){
 	int vals[10] = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18};
 	ra::container::sv_set<int>::ordered_and_unique_range oaur;
 	ra::container::sv_set<int> stickitin(oaur, vals, 10);
@@ -97,12 +97,124 @@ TEST_CASE("Check insert member", "[functions]"){
 		}
 		++iter;
 	}std::cout << '\n';*/
-	/*CHECK( foo.erase(foo.find((float)999/2)) == foo.end() );
-	CHECK( foo.begin() == foo.end() );
-	for( int i = 999; i > -1001; --i ){
-		CHECK( bar.erase(foo.find((float)i/2)) == foo.end() );
+	ra::container::sv_set<float>::ordered_and_unique_range oaf;
+	ra::container::sv_set<float> qux(oaf, bar.begin(), 2000);
+	auto qqq = qux.begin();
+	auto bbb = bar.begin();
+	while( qqq != qux.end() ){
+		CHECK( *qqq == *bbb );
+		++qqq;
+		++bbb;
 	}
-	CHECK( bar.begin() == bar.end() );*/
+	CHECK( qqq == qux.end() );
+	CHECK( bbb == bar.end() );
+	auto corge = std::move( qux );
+	qqq = corge.begin();
+	bbb = bar.begin();
+	while( qqq != corge.end() ){
+		CHECK( *qqq == *bbb );
+		++qqq;
+		++bbb;
+	}
+	CHECK( qux.size() == 0 );
+	CHECK( qux.capacity() == 0 );
+	CHECK( qux.begin() == qux.end() );
+	qux = std::move( corge );
+	qqq = qux.begin();
+	bbb = bar.begin();
+	while( qqq != qux.end() ){
+		CHECK( *qqq == *bbb );
+		++qqq;
+		++bbb;
+	}
+	CHECK( corge.size() == 0 );
+	CHECK( corge.capacity() == 0 );
+	CHECK( corge.begin() == corge.end() );
+	corge = qux;
+	auto ccc = corge.begin();
+	qqq = qux.begin();
+	bbb = bar.begin();
+	while( ccc != corge.end() ){
+		CHECK( *qqq == *bbb );
+		CHECK( *ccc == *qqq );
+		CHECK( *bbb == *ccc );
+		++ccc;
+		++qqq;
+		++bbb;
+	}
+	CHECK( corge.size() == qux.size() );
+	CHECK( corge.size() == bar.size() );
+	CHECK( qux.size() == bar.size() );
+	CHECK( corge.capacity() == qux.capacity() );
+	CHECK( corge.capacity() == bar.capacity() );
+	CHECK( qux.capacity() == bar.capacity() );
+	CHECK( ccc == corge.end() );
+	CHECK( bbb == bar.end() );
+	CHECK( qqq == qux.end() );
+	CHECK( corge.size() == 2000 );
+	for( int i = 999; i > -1001; --i ){
+		CHECK( bar.end() == bar.erase(bar.find((float)i/2)) );
+	}
+	CHECK( bar.begin() == bar.end() );
+	CHECK( corge.capacity() == 2000 );
+	corge.reserve(3000);
+	CHECK( corge.capacity() == 3000 );
+	CHECK( corge.size() == 2000 );
+	CHECK( qux.size() == 2000 );
+	CHECK( qux.capacity() == 2000 );
+	qqq = qux.begin();
+	ccc = corge.begin();
+	while( qqq != qux.end() ){
+		CHECK( *qqq == *ccc );
+		++qqq;
+		++ccc;
+	}
+	corge.shrink_to_fit();
+	CHECK( corge.size() == 2000 );
+	CHECK( corge.capacity() == 2000 );
+	qqq = qux.begin();
+	ccc = corge.begin();
+	while( qqq != qux.end() ){
+		CHECK( *qqq == *ccc );
+		++qqq;
+		++ccc;
+	}
+	CHECK( qqq == qux.end() );
+	CHECK( ccc == corge.end() );
+	float valss[10] = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18};
+	ra::container::sv_set<float>::ordered_and_unique_range ocra;
+	ra::container::sv_set<float> ronch(ocra, valss, 10);
+	auto hova = ronch;
+	corge.swap(ronch);
+	auto v1 = corge.begin();
+	auto v2 = hova.begin();
+	while( v1 != corge.end() ){
+		CHECK( *v1 == *v2 );
+		++v1;
+		++v2;
+	}
+	CHECK( v1 == corge.end() );
+	CHECK( v2 == hova.end() );
+	auto b1 = qux.begin();
+	auto b2 = ronch.begin();
+	while( b1 != qux.end() ){
+		CHECK( *b1 == *b2 );
+		++b1;
+		++b2;
+	}
+	CHECK( b1 == qux.end() );
+	CHECK( b2 == ronch.end() );
+	ronch.clear();
+	CHECK( ronch.size() == 0 );
+	CHECK( ronch.capacity() == 0 );
+	CHECK( ronch.begin() == ronch.end() );
+	ronch.swap(qux);
+	CHECK( qux.size() == 0 );
+	CHECK( qux.capacity() == 0 );
+	CHECK( qux.begin() == qux.end() );
+	CHECK( ronch.size() == 2000 );
+	CHECK( ronch.capacity() == 2000 );
+	qux.clear();
 }
 
 /*
