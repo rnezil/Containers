@@ -397,7 +397,7 @@ public:
 				return end();
 		}
 
-		iterator finder = begin() - 1;
+		const_iterator finder = begin() - 1;
 		const_iterator upper = end() - 1;
 		const_iterator lower = begin();
 
