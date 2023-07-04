@@ -4,6 +4,12 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.1 FATAL_ERROR)
 #Specify project name and languages
 project(containers LANGUAGES CXX)
 
+#Disable multithreading
+#set(Boost_USE_MULTITHREADED FALSE)
+
+#Find Boost library
+#find_package(Boost REQUIRED COMPONENTS iterator)
+
 #Find packages
 find_package(Catch2 REQUIRED)
 
@@ -14,7 +20,7 @@ include(Catch)
 include(${CMAKE_CURRENT_SOURCE_DIR}/Sanitizers.cmake)
 
 #Globally include 'include' directory
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${Boost_INCLUDE_DIRS})
 
 #Add executable targets
 add_executable(test_sv_set ${CMAKE_CURRENT_SOURCE_DIR}/app/test_sv_set.cpp ${CMAKE_CURRENT_SOURCE_DIR}/include/ra/sv_set.hpp)
