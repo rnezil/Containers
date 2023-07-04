@@ -381,7 +381,86 @@ public:
 
 		return finder;
 	}
-			
+	
+	const_iterator find(const key_type& k) const{
+		if( begin() == end() )
+			return end();
+
+		// size() == 2 causes issues for find logic
+		// so if size() == 2 then check manually
+		if( size() == 2 ){
+			if( *begin() == k )
+				return begin();
+			else if( *(end() - 1) == k )
+				return end() - 1;
+			else
+				return end();
+		}
+
+		iterator finder = begin() - 1;
+		const_iterator upper = end() - 1;
+		const_iterator lower = begin();
+
+		if( size() & 0x1 ){
+			// Size is odd
+			finder += (size() + 1) / 2;
+		}else{
+			// Size is even
+			finder += size() / 2;
+		}
+
+		// Variable to keep track of last finder
+		// value during loopage
+		const_iterator last_go = finder;
+
+		// Iterate until k is found in set
+		while( *finder != k ){
+			// If bounds of set reached without
+			// finding result then return end()
+			if( finder == begin() || finder == end() - 1 )
+				return end();
+
+			// If stuck in an inifinite loop
+			// finding nothing then return end()
+			if( (upper - lower == 1)
+					&& ((*finder > k && *last_go < k)
+						|| (*finder < k && *last_go > k)) )
+				return end();
+
+			// Update last go
+			last_go = finder;
+
+			if( comp_(*finder, k) ){
+				// Finder is less than k, so
+				// update lower bound of search
+				lower = finder;
+
+				// Increment finder
+				if( (upper - finder) & 0x1 ){
+					// Odd
+					finder += (upper - finder + 1) / 2;
+				}else{
+					// Even
+					finder += (upper - finder) / 2;
+				}
+			}else{
+				// Finder is greater than k, so
+				// update upper bound of search
+				upper = finder;
+
+				// Increment finder;
+				if( (finder - lower) & 0x1 ){
+					// Odd
+					finder -= (finder - lower + 1) / 2;
+				}else{
+					// Even
+					finder -= (finder - lower) / 2;
+				}
+			}
+		}
+
+		return finder;
+	}		
 
 	// Member functions that serve only to return data members
 	// of the set.
