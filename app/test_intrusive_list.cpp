@@ -5,6 +5,7 @@
 namespace ri = ra::intrusive;
 
 struct Widget {
+	Widget() : value {0} {}
 	Widget (int value_) : value(value_) {}
 	int value;
 	ri::list_hook hook;

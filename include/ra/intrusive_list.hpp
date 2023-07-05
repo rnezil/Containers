@@ -335,6 +335,8 @@ public:
 	const_reference back() const{
 		const_iterator getref(ra::util::parent_from_member<value_type, list_hook>(
 					sentinel_.prev_, hook_ptr));
+
+		return *getref;
 	}
 
 	// Clear list
