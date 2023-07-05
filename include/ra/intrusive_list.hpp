@@ -174,7 +174,7 @@ public:
 	};
 
 	// Default constructor
-	list(): size_ {0} {
+	list(): size_ {0}, end_(0) {
 		sentinel_.next_ = &(end_.*hook_ptr);
 		sentinel_.prev_ = &(end_.*hook_ptr);
 		(end_.*hook_ptr).next_ = nullptr;
