@@ -270,6 +270,8 @@ public:
 
 	// Push back function
 	void push_back(value_type& x){
+		// Breaks if size <3
+
 		// Rear hook new item to end of
 		// list item
 		(x.*hook_ptr).prev_ = sentinel_.prev_;
@@ -314,8 +316,8 @@ public:
 
 	// Clear list
 	void clear(){
-		sentinel_.next_ = sentinel_;
-		sentinel_.prev_ = sentinel_;
+		sentinel_.next_ = nullptr;
+		sentinel_.prev_ = nullptr;
 		size_ = 0;
 	}
 
