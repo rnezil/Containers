@@ -28,7 +28,7 @@ int main()
 	for(auto&& i : storage) {
 		values.push_back(i);
 	}
-	values.print();
+	//values.print();
 	std::cout << "\n\n";
 	auto jank = values.begin();
 	std::cout << *jank << "\n\n\n";
@@ -36,6 +36,6 @@ int main()
 	std::cout << *++++++++jank << "\n\n\n";
 	Widget foo(69);
 	std::cout << *values.insert(jank, foo) << "\n\n\n";
-	values.print();
+	//values.print();
 	return 0;
 }
