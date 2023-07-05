@@ -174,30 +174,40 @@ public:
 	};
 
 	// Default constructor
-	list(): size_ {0} {}
+	list(): size_ {0} {
+		sentinel_.next_ = &(end_.*hook_ptr);
+		sentinel_.prev_ = &(end_.*hook_ptr);
+		(end_.*hook_ptr).next_ = nullptr;
+		(end_.*hook_ptr).prev_ = sentinel_.prev_;
+	}
 
 	// Destructor
 	~list(){
 		sentinel_.next_ = nullptr;
 		sentinel_.prev_ = nullptr;
+		(end_.*hook_ptr).prev_ = nullptr;
 	}
 
 	// Move constructor
 	list(list&& other){
 		sentinel_.next_ = other.sentinel_.next_;
 		sentinel_.prev_ = other.sentinel_.prev_;
+		(end_.*hook_ptr).prev_ = (other.end_.*hook_ptr).prev_;
 		size_ = other.size_;
-		other.sentinel_.next_ = &other.sentinel_;
-		other.sentinel_.prev_ = &other.sentinel_;
+		other.sentinel_.next_ = &(other.end_.*hook_ptr);
+		other.sentinel_.prev_ = &(other.end_.*hook_ptr);
+		(other.end_.*hook_ptr).prev_ = other.sentinel_.prev_;
 	}
 
 	// Move assignment operator
 	list& operator=(list&& other){
 		sentinel_.next_ = other.sentinel_.next_;
 		sentinel_.prev_ = other.sentinel_.prev_;
+		(end_.*hook_ptr).prev_ = (other.end_.*hook_ptr).prev_;
 		size_ = other.size_;
-		other.sentinel_.next_ = &other.sentinel_;
-		other.sentinel_.prev_ = &other.sentinel_;
+		other.sentinel_.next_ = &(other.end_.*hook_ptr);
+		other.sentinel_.prev_ = &(other.end_.*hook_ptr);
+		(other.end_.*hook_ptr).prev_ = other.sentinel_.prev_;
 
 		return *this;
 	}	
@@ -211,12 +221,15 @@ public:
 		auto tmpn = sentinel_.next_;
 		auto tmpp = sentinel_.next_;
 		auto tmps = size_;
+		auto tmpe = (end_.*hook_ptr).prev_;
 		sentinel_.next_ = x.sentinel_.next_;
 		sentinel_.prev_ = x.sentinel_.prev_;
 		size_ = x.size_;
+		(end_.*hook_ptr).prev_ = (x.end_.*hook_ptr).prev_;
 		x.sentinel_.next_ = tmpn;
 		x.sentinel_.prev_ = tmpp;
 		x.size_ = tmps;
+		(x.end_.*hook_ptr).prev_ = tmpe;
 	}
 
 	// Returns list size
@@ -224,42 +237,62 @@ public:
 
 	// Insert function
 	iterator insert(iterator pos, value_type& value){
-		// If inserting at front of list, update
-		// sentinel node
-		if( pos == begin() )
-			sentinel_.next_ = &((*pos).*hook_ptr);
+		if( pos == end() ){
+			// If insertion taking place at
+			// end of list, can simply use
+			// push_back. This clause also
+			// accounts for the size equals
+			// zero case.
+			push_back( value );
+		}else{
+			// Hook new element between existing elements
+			(value.*hook_ptr).next_ = &((*pos).*hook_ptr);
+			(value.*hook_ptr).prev_ = ((*pos).*hook_ptr).prev_;
 
-		// Front hook new item into item being
-		// bumped down
-		(value.*hook_ptr).next_ = &((*pos).*hook_ptr);
+			// Hook bump-down element to new element
+			((value.*hook_ptr).next_)->prev_ = &(value.*hook_ptr);
 
-		// Rear hook new item into prev of item
-		// being bumped down
-		(value.*hook_ptr).prev_ = ((*pos).*hook_ptr).prev_;
+			if( pos == begin() ){
+				// If inserting at beginning, point sentinel
+				// to new element
+				sentinel_.next_ = &(value.*hook_ptr);
+			}else{
+				// If not inserting at beginning, hook preceding
+				// element to new element
+				((value.*hook_ptr).prev_)->next_ = &(value.*hook_ptr);
+			}
+		}
 
-		// Front hook prev of item being bumped
-		// down into new item
-		(((*pos).*hook_ptr).prev_)->next_ = &(value.*hook_ptr);
-
-		// Rear hook item being bumped down into
-		// new item
-		((*pos).*hook_ptr).prev_ = &(value.*hook_ptr);
-
-		// Adjust size
+		// Incremenet size
 		++size_;
 
-		return --pos;
+		// Return iterator referring to new element
+		return iterator( ra::util::parent_from_member<value_type, list_hook>(
+				&(value.*hook_ptr), hook_ptr) );
 	}
 
 	// Erase function
 	iterator erase(iterator pos){
+		if( pos == end() ){
+			if( size() ){
+				// Size is not 0
+				sentinel_.prev_ = ((*pos).*hook_ptr).prev_;
+			}else{
+				// Size is 0
+				sentinel_.prev_ = &(end_.*hook_ptr);
+			}
+		}
+
+		if( pos == begin() )
+			sentinel_.next_ = ((*pos).*hook_ptr).next_;
+
 		// Front hook item in front of pos
 		// to item behind pos
-		((*pos).*hook_ptr).prev_->next_ = ((*pos).*hook_ptr).next_;
+		(((*pos).*hook_ptr).prev_)->next_ = ((*pos).*hook_ptr).next_;
 
 		// Rear hook item behind pos to item
 		// in front of pos
-		((*pos).*hook_ptr).next_->prev_ = ((*pos).*hook_ptr).prev_;
+		(((*pos).*hook_ptr).next_)->prev_ = ((*pos).*hook_ptr).prev_;
 
 		// Decrement size
 		--size_;
@@ -270,35 +303,25 @@ public:
 
 	// Push back function
 	void push_back(value_type& x){
-		// Breaks if size <3
+		if( size() ){
+			// Size is not 0
+			(sentinel_.prev_)->next_ = &(x.*hook_ptr);
+			(x.*hook_ptr).prev_ = sentinel_.prev_;
+		}else{
+			// Size is 0
+			sentinel_.next_ = &(x.*hook_ptr);
+			(x.*hook_ptr).prev_ = nullptr;
+		}
 
-		// Rear hook new item to end of
-		// list item
-		(x.*hook_ptr).prev_ = sentinel_.prev_;
-
-		// Front hook end of list item to
-		// new item
-		sentinel_.prev_->next_ = &(x.*hook_ptr);
-		
-		// Rear hook sentinel node to new
-		// item
 		sentinel_.prev_ = &(x.*hook_ptr);
-
-		// Front hook new item to item at
-		// the beginning of the list
-		(x.*hook_ptr).next_ = sentinel_.next_;
-
-		// Rear hook item at the begiining
-		// of the list to new item
-		(sentinel_.next_)->prev_ = &(x.*hook_ptr);
-
-		// Increment size
+		(x.*hook_ptr).next_ = &(end_.*hook_ptr);
+		(end_.*hook_ptr).prev_ = sentinel_.prev_;
 		++size_;
 	}
 
 	// Pop back function
 	void pop_back(){
-		erase(iterator(&back()));
+		erase(end()--);
 		--size_;
 	}
 
@@ -316,8 +339,9 @@ public:
 
 	// Clear list
 	void clear(){
-		sentinel_.next_ = nullptr;
-		sentinel_.prev_ = nullptr;
+		sentinel_.next_ = &(end_.*hook_ptr);
+		sentinel_.prev_ = &(end_.*hook_ptr);
+		(end_.*hook_ptr).prev_ = sentinel_.prev_;
 		size_ = 0;
 	}
 
@@ -335,14 +359,14 @@ public:
 
 	// Get const end iterator
 	const_iterator end() const {
-		return const_iterator(nullptr);
+		return const_iterator(&end_);
 		//return const_iterator(ra::util::parent_from_member<value_type, list_hook>(
 		//		sentinel_.prev_, hook_ptr));
 	}
 
 	// Get end iterator
 	iterator end() {
-		return iterator(nullptr);
+		return iterator(&end_);
 		//return iterator(ra::util::parent_from_member<value_type, list_hook>(
 		//		sentinel_.prev_, hook_ptr));
 	}
@@ -361,6 +385,7 @@ public:
 private:
 	size_type size_;
 	list_hook sentinel_;
+	value_type end_;
 };
 }
 
