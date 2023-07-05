@@ -361,7 +361,7 @@ public:
 
 	// Get const end iterator
 	const_iterator end() const {
-		return const_iterator(&end_);
+		return const_iterator(const_cast<const value_type*>(&end_));
 		//return const_iterator(ra::util::parent_from_member<value_type, list_hook>(
 		//		sentinel_.prev_, hook_ptr));
 	}
