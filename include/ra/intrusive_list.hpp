@@ -253,14 +253,24 @@ public:
 
 	// Erase function
 	iterator erase(iterator pos){
+		if( size() == 1 ){
+			sentinel_.next_ == nullptr;
+			sentinel_.prev_ == nullptr;
+		}else if( ((*pos).*hook_ptr).prev_ == nullptr ){
+			sentinel_.next_ = ((*pos).*hook_ptr).next_;
+			(sentinel_.next_)->prev_ == nullptr;
+		}else if( ((*pos).*hook_ptr).next_ == nullptr ){
+			sentinel_.prev_ = ((*pos).*hook_ptr).prev_;
+			(sentinel_.prev_)->next_ == nullptr;
+		}else{
 		// Front hook item in front of pos
 		// to item behind pos
-		((*pos).*hook_ptr).prev_->next_ = ((*pos).*hook_ptr).next_;
+		(((*pos).*hook_ptr)).prev_->next_ = ((*pos).*hook_ptr).next_;
 
 		// Rear hook item behind pos to item
 		// in front of pos
-		((*pos).*hook_ptr).next_->prev_ = ((*pos).*hook_ptr).prev_;
-
+		(((*pos).*hook_ptr).next_)->prev_ = ((*pos).*hook_ptr).prev_;
+		}
 		// Decrement size
 		--size_;
 		
@@ -275,7 +285,7 @@ public:
 			sentinel_.prev_ = &(x.*hook_ptr);
 			sentinel_.next_ = &(x.*hook_ptr);
 			(x.*hook_ptr).next_ = nullptr;
-			(x.*hook_ptr).prev_ - nullptr;
+			(x.*hook_ptr).prev_ = nullptr;
 		}else{
 		// Rear hook new item to end of
 		// list item
