@@ -189,7 +189,7 @@ public:
 	}
 
 	// Move constructor
-	list(list&& other){
+	list(list&& other): end_(0) {
 		sentinel_.next_ = other.sentinel_.next_;
 		sentinel_.prev_ = other.sentinel_.prev_;
 		(end_.*hook_ptr).prev_ = (other.end_.*hook_ptr).prev_;
@@ -361,7 +361,8 @@ public:
 
 	// Get const end iterator
 	const_iterator end() const {
-		return const_iterator(const_cast<const value_type*>(&end_));
+		const value_type* tmp = &end_;
+		return const_iterator(tmp);
 		//return const_iterator(ra::util::parent_from_member<value_type, list_hook>(
 		//		sentinel_.prev_, hook_ptr));
 	}
