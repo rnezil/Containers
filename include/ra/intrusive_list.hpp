@@ -14,7 +14,7 @@ public:
 
 	list_hook(const list_hook&): list_hook() {}
 
-	list_hook& operator=(const list_hook&) { (void)0; }
+	list_hook& operator=(const list_hook&) { return *this; }
 
 	~list_hook() {
 		next_ = nullptr;
@@ -304,7 +304,7 @@ public:
 	}
 
 	const_reference back() const{
-		const_iterator getref(ra::uitil::parent_from_member<value_type, list_hook>(
+		const_iterator getref(ra::util::parent_from_member<value_type, list_hook>(
 					sentinel_.prev_, hook_ptr));
 	}
 
@@ -341,7 +341,7 @@ public:
 	}
 
 	// Debugging function
-	void print() const {
+/*	void print() const {
 		const_iterator iter = begin();
 		std::cout << *iter << '\n';
 		++iter;
@@ -350,7 +350,7 @@ public:
 			++iter;
 		}
 	}
-
+*/
 private:
 	size_type size_;
 	list_hook sentinel_;
