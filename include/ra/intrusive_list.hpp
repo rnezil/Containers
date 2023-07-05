@@ -261,7 +261,11 @@ public:
 		// in front of pos
 		((*pos).*hook_ptr).next_->prev_ = ((*pos).*hook_ptr).prev_;
 
+		// Decrement size
 		--size_;
+		
+		return iterator(ra::util::parent_from_member<value_type, list_hook>(
+				((*pos).*hook_ptr).next_, hook_ptr));
 	}
 
 	// Push back function
@@ -329,13 +333,14 @@ public:
 
 	// Get const end iterator
 	const_iterator end() const {
-		return const_iterator(ra::util::parent_from_member<value_type, list_hook>(
-				sentinel_.prev_, hook_ptr));
+		return const_iterator(nullptr);
+		//return const_iterator(ra::util::parent_from_member<value_type, list_hook>(
+		//		sentinel_.prev_, hook_ptr));
 	}
 
 	// Get end iterator
 	iterator end() {
-		return nullptr;
+		return iterator(nullptr);
 		//return iterator(ra::util::parent_from_member<value_type, list_hook>(
 		//		sentinel_.prev_, hook_ptr));
 	}
