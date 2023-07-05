@@ -271,14 +271,19 @@ public:
 	// Push back function
 	void push_back(value_type& x){
 		// Breaks if size <3
-
+		if( size() == 0 ){
+			sentinel_.prev_ = &(x.*hook_ptr);
+			sentinel_.next_ = &(x.*hook_ptr);
+			(x.*hook_ptr).next_ = nullptr;
+			(x.*hook_ptr).prev_ - nullptr;
+		}else{
 		// Rear hook new item to end of
 		// list item
 		(x.*hook_ptr).prev_ = sentinel_.prev_;
 
 		// Front hook end of list item to
 		// new item
-		sentinel_.prev_->next_ = &(x.*hook_ptr);
+		(sentinel_.prev_)->next_ = &(x.*hook_ptr);
 		
 		// Rear hook sentinel node to new
 		// item
@@ -286,11 +291,8 @@ public:
 
 		// Front hook new item to item at
 		// the beginning of the list
-		(x.*hook_ptr).next_ = sentinel_.next_;
-
-		// Rear hook item at the begiining
-		// of the list to new item
-		(sentinel_.next_)->prev_ = &(x.*hook_ptr);
+		(x.*hook_ptr).next_ = nullptr;
+		}
 
 		// Increment size
 		++size_;
