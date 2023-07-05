@@ -237,9 +237,11 @@ public:
 		// being bumped down
 		(value.*hook_ptr).prev_ = ((*pos).*hook_ptr).prev_;
 
+		if( pos != begin() ){
 		// Front hook prev of item being bumped
 		// down into new item
 		(((*pos).*hook_ptr).prev_)->next_ = &(value.*hook_ptr);
+		}
 
 		// Rear hook item being bumped down into
 		// new item
